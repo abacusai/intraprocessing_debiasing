@@ -17,7 +17,7 @@ from sklearn.metrics import balanced_accuracy_score
 from sklearn.preprocessing import StandardScaler
 
 from utils import get_data, get_valid_objective, get_test_objective
-from models import load_model, train_model
+from tabular_models import load_model, train_model
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 print(f'device: {device}')
