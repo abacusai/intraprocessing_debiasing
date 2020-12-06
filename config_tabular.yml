@@ -1,0 +1,77 @@
+---
+seed: 100
+experiment_name: bank_spd
+dataset: bank
+protected: age
+metric: spd
+modelpath: bank_age.pt
+objective:
+  sharpness: 500.
+  epsilon: 0.05
+models:
+  - default
+  - ROC
+  - EqOdds
+  - CalibEqOdds
+  - random
+  - layerwiseOpt
+  - adversarial
+  - mitigating
+CalibEqOdds:
+  cost_constraint: fpr
+random:
+  num_trials: 101
+  stddev: 0.1
+  margin: 0.01
+layerwiseOpt:
+  max_sparsity: 100000
+  num_layers: 5
+  n_calls: 20
+  margin: 0.01
+fairBO:
+  hyperparameters:
+    T0:
+      start: 100
+      end: 501
+      step: 100
+      log_scale: false
+    alpha:
+      start: -6
+      end: -0.9
+      step: 1
+      log_scale: true
+    lr:
+      start: -6
+      end: -3.9
+      step: 1
+      log_scale: true
+    beta1:
+      start: -3
+      end: -0.9
+      step: 1
+      log_scale: true
+    beta2:
+      start: -3
+      end: -0.9
+      step: 1
+      log_scale: true
+  initial_budget: 10
+  total_budget: 30
+  margin: 0.01
+adversarial:
+  num_deep: 3
+  lr: 0.0001
+  epochs: 32
+  critic_steps: 201
+  batch_size: 64
+  actor_steps: 301
+  sharpness: 300.
+  margin: 0.02
+mitigating:
+  epochs: 24
+  lr: 0.0001
+  critic_steps: 201
+  batch_size: 64
+  actor_steps: 201
+  alpha: 0.8
+  margin: 0.01

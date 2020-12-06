@@ -11,3 +11,62 @@ In this work, we initiate the study of a new paradigm in debiasing research, _in
 <p align="center">
 <img src="images/FairAI_fig.png" alt="debias_fig" width="99%">
 </p>
+
+## Requirements
+
+Install the requirements using
+
+```
+$ pip install -r requirements.txt
+```
+
+## How to run tabular experiments
+
+To run tabular experiments you can run the following command
+
+```
+> python intraproc_tabular config_tabular.yml
+```
+
+Modify the `config_tabular.yml` file to adjust the parameters of the tabular experiment. Below are some notes on what each parameter in the yaml file corresponds to.
+
+### yaml config notes
+
+- seed: the seed used for the experiment.
+- experiment_name: prefix for output json file.
+- dataset: Name of the dataset (one of adult, german, compas, or bank).
+- protected: Protected variable to use for dataset (see `utils.py` for options).
+- modelpath: Location of a trained model.
+- objective: parameters for objective
+- sharpness: How sharp the objective is.
+- margin: absolute margin of objective.
+- hyperparameters (optional): Additional hyperparameters to use if available.
+  - num_deep: Number of layers.
+  - hid: Dimension of hidden vector.
+  - dropout_p: Dropout probability.
+- metric: bias measure to use (one of spd, aod, eod).
+- models: The intra-processing models to compare.
+
+  - ROC
+  - EqOdds
+  - CalibEqOdds
+    - cost_constraint: One of fpr, for, or weighted.
+  - random
+    - num_trials: Number of random models to sample
+    - stddev: how much to scale normal samples.
+  - adversarial
+    - num_deep: Number of critic layers.
+    - lr: Learning rate for the actor optimizer
+    - epochs: Number of epochs to run the model for.
+    - critic_steps: Number of steps critic takes.
+    - batch_size: Size of batches.
+    - actor_steps: Number of steps actor takes.
+    - margin: Margin for loss objective.
+    - sharpness: Sharpness for loss objective.
+  - mitigating
+
+  - epochs: Number of epochs to run the model for.
+  - critic_steps: Number of steps critic takes.
+  - batch_size: Size of batches.
+  - actor_steps: Number of steps actor takes.
+  - alpha: Parameter to scale adversarial loss
