@@ -25,12 +25,12 @@ $ pip install -r requirements.txt
 To run tabular experiments you can run the following command
 
 ```
-> python intraproc_tabular config_tabular.yml
+> python intraproc_tabular.py config_tabular.yml
 ```
 
-Modify the `config_tabular.yml` file to adjust the parameters of the tabular experiment. Below are some notes on what each parameter in the yaml file corresponds to.
+To modify the parameters of the tabular experiment change the `config_tabular.yml` file. Below are some notes on what each parameter in the yaml file represents.
 
-### yaml config notes
+### yaml config tabular notes
 
 - seed: the seed used for the experiment.
 - experiment_name: prefix for output json file.
@@ -45,28 +45,36 @@ Modify the `config_tabular.yml` file to adjust the parameters of the tabular exp
   - hid: Dimension of hidden vector.
   - dropout_p: Dropout probability.
 - metric: bias measure to use (one of spd, aod, eod).
-- models: The intra-processing models to compare.
+- models: List of intra-processing models to compare.
+- CalibEqOdds
+  - cost_constraint: One of fpr, for, or weighted.
+- random
+  - num_trials: Number of random models to sample
+  - stddev: How much to scale normal samples.
+  - margin:
+- adversarial
+- num_deep: Number of critic layers.
+- lr: Learning rate for the actor optimizer
+- epochs: Number of epochs to run the model for.
+- critic_steps: Number of steps critic takes.
+- batch_size: Size of batches.
+- actor_steps: Number of steps actor takes.
+- margin: Margin for loss objective.
+- sharpness: Sharpness for loss objective.
+- mitigating
 
-  - ROC
-  - EqOdds
-  - CalibEqOdds
-    - cost_constraint: One of fpr, for, or weighted.
-  - random
-    - num_trials: Number of random models to sample
-    - stddev: how much to scale normal samples.
-  - adversarial
-    - num_deep: Number of critic layers.
-    - lr: Learning rate for the actor optimizer
-    - epochs: Number of epochs to run the model for.
-    - critic_steps: Number of steps critic takes.
-    - batch_size: Size of batches.
-    - actor_steps: Number of steps actor takes.
-    - margin: Margin for loss objective.
-    - sharpness: Sharpness for loss objective.
-  - mitigating
+- epochs: Number of epochs to run the model for.
+- critic_steps: Number of steps critic takes.
+- batch_size: Size of batches.
+- actor_steps: Number of steps actor takes.
+- alpha: Parameter to scale adversarial loss
 
-  - epochs: Number of epochs to run the model for.
-  - critic_steps: Number of steps critic takes.
-  - batch_size: Size of batches.
-  - actor_steps: Number of steps actor takes.
-  - alpha: Parameter to scale adversarial loss
+## How to run CelebA experiments
+
+To run the CelebA experiments you can run the following command
+
+```
+> python intraproc_celeba.py config_celeba.yml
+```
+
+Modify the `config_celeba.yml` file to adjust the parameters of the tabular experiment. Below are some notes on what each parameter in the yaml file corresponds to.
