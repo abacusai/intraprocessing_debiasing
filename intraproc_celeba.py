@@ -184,10 +184,10 @@ def compute_priors(data, protected_index, prediction_index):
     prot_rate = np.round(counts[1][1]/sum(counts[1]), 4)
     unprot_rate = np.round(counts[0][1]/sum(counts[0]), 4)
 
-    logger.info('Prob. protected class:', np.round(sum(counts[1])/total, 4))
-    logger.info('Prob. positive outcome:', np.round(sum(counts[:, 1])/total, 4))
-    logger.info('Prob. positive outcome given protected class', prot_rate)
-    logger.info('Prob. positive outcome given unprotected class', unprot_rate)
+    logger.info(f'Prob. protected class: {np.round(sum(counts[1])/total, 4)}')
+    logger.info(f'Prob. positive outcome: {np.round(sum(counts[:, 1])/total, 4)}')
+    logger.info(f'Prob. positive outcome given protected class {prot_rate}')
+    logger.info(f'Prob. positive outcome given unprotected class {unprot_rate}')
 
 
 def compute_bias(y_pred, y_true, prot, metric):
@@ -413,7 +413,7 @@ def main(config):
 
         if verbose:
             logger.info(f'accuracy {acc}')
-            logger.info(yaml_config['metric'], bias)
+            logger.info(f'{yaml_config["metric"]} {bias}')
             logger.info(f'objective {obj}')
 
         return {
