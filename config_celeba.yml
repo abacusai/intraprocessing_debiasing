@@ -1,6 +1,6 @@
 ---
 seed: 1
-output: black_young_exp.json
+output: black_young_exp_3.json
 protected_attr: Black
 prediction_attr: Young
 metric: eod
@@ -34,6 +34,7 @@ layerwiseOpt:
 adversarial:
   margin: 0.01
   epochs: 10
-  critic_steps: 201
-  actor_steps: 301
+  critic_steps: 301
+  actor_steps: 401
+  lambda: 20
   checkpoint: adversarial_checkpoint.pt

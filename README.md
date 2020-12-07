@@ -53,21 +53,20 @@ To modify the parameters of the tabular experiment change the `config_tabular.ym
   - stddev: How much to scale normal samples.
   - margin:
 - adversarial
-- num_deep: Number of critic layers.
-- lr: Learning rate for the actor optimizer
-- epochs: Number of epochs to run the model for.
-- critic_steps: Number of steps critic takes.
-- batch_size: Size of batches.
-- actor_steps: Number of steps actor takes.
-- margin: Margin for loss objective.
-- sharpness: Sharpness for loss objective.
+  - num_deep: Number of critic layers.
+  - lr: Learning rate for the actor optimizer
+  - epochs: Number of epochs to run the model for.
+  - critic_steps: Number of steps critic takes.
+  - batch_size: Size of batches.
+  - actor_steps: Number of steps actor takes.
+  - margin: Margin for loss objective.
+  - sharpness: Sharpness for loss objective.
 - mitigating
-
-- epochs: Number of epochs to run the model for.
-- critic_steps: Number of steps critic takes.
-- batch_size: Size of batches.
-- actor_steps: Number of steps actor takes.
-- alpha: Parameter to scale adversarial loss
+  - epochs: Number of epochs to run the model for.
+  - critic_steps: Number of steps critic takes.
+  - batch_size: Size of batches.
+  - actor_steps: Number of steps actor takes.
+  - alpha: Parameter to scale adversarial loss
 
 ## How to run CelebA experiments
 

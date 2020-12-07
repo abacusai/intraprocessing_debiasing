@@ -274,7 +274,7 @@ def get_best_objective(y_true, y_pred, y_prot):
     return best_obj, best_thresh
 
 
-def get_objective_results(best_thresh):
+def get_objective_results(best_thresh, margin=0.01):
     """Get the objective results with the best_threshold"""
     def _get_results(y_true, y_pred, y_prot):
         """Inner function to be returned"""
@@ -282,15 +282,15 @@ def get_objective_results(best_thresh):
         rocauc_score = roc_auc_score(y_true.cpu(), y_pred.cpu())
         perf = (torch.mean((y_pred > best_thresh)[y_true.type(torch.bool)].type(torch.float32)) + torch.mean((y_pred <= best_thresh)[~y_true.type(torch.bool)].type(torch.float32))) / 2
         bias = compute_bias((y_pred > best_thresh).float().cpu(), y_true.float().cpu(), y_prot.float().cpu(), yaml_config['metric'])
-        obj = compute_objective(perf, bias)
+        obj = compute_objective(perf, bias, margin=margin)
 
         return rocauc_score, perf, bias, obj
     return _get_results
 
 
-def print_objective_results(dataloader, model, thresh, protected_index, prediction_index):
+def print_objective_results(dataloader, model, thresh, protected_index, prediction_index, margin=0.00):
     global yaml_config
-    rocauc_score, acc, bias, obj = val_model(model, dataloader, get_objective_results(thresh), protected_index, prediction_index)
+    rocauc_score, acc, bias, obj = val_model(model, dataloader, get_objective_results(thresh, margin), protected_index, prediction_index)
 
     print('roc auc', rocauc_score)
     print('accuracy with best thresh', acc)
@@ -411,7 +411,7 @@ def main(config):
             torch.tensor(dataset.protected_attributes.reshape(-1)),
             yaml_config['metric']
         ).item()
-        obj = compute_objective(acc, bias)
+        obj = compute_objective(acc, bias, margin=0.0)
 
         if verbose:
             print('accuracy ', acc)
@@ -593,14 +593,14 @@ def main(config):
 
         actor = nn.Sequential(base_model, nn.Linear(base_model.fc.in_features, 2))
         actor.to(device)
-        actor_optimizer = optim.Adam(actor.parameters())
+        actor_optimizer = optim.Adam(actor.parameters(), lr=1e-4)
         actor_loss_fn = nn.BCEWithLogitsLoss()
         actor_loss = 0.
         actor_steps = config['adversarial']['actor_steps']
 
         critic = Critic(config['batch_size']*unrefined_net.fc.in_features)
         critic.to(device)
-        critic_optimizer = optim.Adam(critic.parameters())
+        critic_optimizer = optim.Adam(critic.parameters(), lr=1e-4)
         critic_loss_fn = nn.MSELoss()
         critic_loss = 0.
         critic_steps = config['adversarial']['critic_steps']
@@ -656,9 +656,7 @@ def main(config):
                 est_bias = critic(base_model(inputs))
                 loss = actor_loss_fn(actor(inputs)[:, 0], y_true)
 
-                # todo change this to the sharpness loss function
-                loss = max(1, 10*(abs(est_bias)-config['objective']['epsilon']+config['adversarial']['margin'])+1) * loss
-                # loss = lam*abs(est_bias) + (1-lam)*loss
+                loss = max(1, config['adversarial']['lambda']*(abs(est_bias)-config['objective']['epsilon']+config['adversarial']['margin'])+1) * loss
 
                 loss.backward()
                 actor_loss += loss.item()
@@ -667,6 +665,7 @@ def main(config):
                     print_loss = critic_loss if (epoch*actor_steps + step) == 0 else critic_loss / (epoch*actor_steps + step)
                     print(f'=======> Epoch: {(epoch, step)} Actor loss: {print_loss:.3f}')
 
+            print_objective_results(valloader, actor, best_thresh, protected_index, prediction_index)
         _, best_thresh = val_model(actor, valloader, get_best_objective, protected_index, prediction_index)
 
         print('val_results')
