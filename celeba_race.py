@@ -6,9 +6,9 @@ import numpy as np
 from torchvision.datasets import CelebA
 from torch.utils.data import Subset
 
-white = np.load(os.path.expanduser('~/posthoc_debiasing/celebrace/white_full.npy'))
-black = np.load(os.path.expanduser('~/posthoc_debiasing/celebrace/black_full.npy'))
-asian = np.load(os.path.expanduser('~/posthoc_debiasing/celebrace/asian_full.npy'))
+white = np.load(os.path.expanduser('celebrace/white_full.npy'))
+black = np.load(os.path.expanduser('celebrace/black_full.npy'))
+asian = np.load(os.path.expanduser('celebrace/asian_full.npy'))
 
 
 class CelebRace(CelebA):
