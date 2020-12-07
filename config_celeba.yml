@@ -1,9 +1,9 @@
 ---
-seed: 1
-output: black_young_exp_3.json
+seed: 4
+output: black_young.json
 protected_attr: Black
 prediction_attr: Young
-metric: eod
+metric: aod
 trainsize: 40000
 testsize: 10000
 num_workers: 4

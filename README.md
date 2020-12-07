@@ -76,4 +76,85 @@ To run the CelebA experiments you can run the following command
 > python intraproc_celeba.py config_celeba.yml
 ```
 
-Modify the `config_celeba.yml` file to adjust the parameters of the tabular experiment. Below are some notes on what each parameter in the yaml file corresponds to.
+Modify the `config_celeba.yml` file to adjust the parameters of the tabular experiment. Below are some notes on what each parameter in the yaml file corresponds to. The options for the protected and prediction attributes are:
+
+- 5_o_Clock_Shadow
+- Arched_Eyebrows
+- Attractive
+- Bags_Under_Eyes
+- Bald
+- Bangs
+- Big_Lips
+- Big_Nose
+- Black_Hair
+- Blond_Hair
+- Blurry
+- Brown_Hair
+- Bushy_Eyebrows
+- Chubby
+- Double_Chin
+- Eyeglasses
+- Goatee
+- Gray_Hair
+- Heavy_Makeup
+- High_Cheekbones
+- Male
+- Mouth_Slightly_Open
+- Mustache
+- Narrow_Eyes
+- No_Beard
+- Oval_Face
+- Pale_Skin
+- Pointy_Nose
+- Receding_Hairline
+- Rosy_Cheeks
+- Sideburns
+- Smiling
+- Straight_Hair
+- Wavy_Hair
+- Wearing_Earrings
+- Wearing_Hat
+- Wearing_Lipstick
+- Wearing_Necklace
+- Wearing_Necktie
+- Young
+- White
+- Black
+- Asian
+- Index
+- Female
+
+### yaml config celebA notes
+
+- seed: The seed used for the experiment.
+- output: Prefix for output json file.
+- protected_attr: Protected Attribute.
+- prediction_attr: Prediction Attribute.
+- metric: Bias measure to use (one of spd, aod, eod).
+- trainsize: Size of training dataset.
+- testsize: Size of test dataset.
+- num_workers: Number of workers for DataLoader.
+- print_priors: Boolean for whether to print priors.
+- retrain: Boolean for whether to retrain the model.
+- optimizer: Optimizer to use when retraining the model (one of sgd, adam).
+- batch_size: The batch size used for retraining.
+- lr: Learning rate to use for retraining.
+- epochs: Number of epochs in retraining.
+- checkpoint: Suffix for checkpoint file.
+- objective
+  - epsilon: Minimum bias needed to be achieved for objective to be non-zero.
+- models: List of intra-processing models to compare.
+- CalibEqOdds
+  - cost_constraint: One of fpr, for, or weighted.
+- random
+  - checkpoint: Where to save checkpoint files
+- layerwiseOpt
+  - max_sparsity: Maximum sparsity to constrain how many variables are tuned by GBRT.
+  - num_layers: Number of final layers to tune.
+- adversarial
+  - margin: Margin for loss objective.
+  - epochs: Number of epochs to run the model for.
+  - critic_steps: Number of steps critic takes.
+  - actor_steps: Number of steps actor takes.
+  - lambda: coefficient used in the surrogate loss function.
+  - checkpoint: Where to save checkpoint files.

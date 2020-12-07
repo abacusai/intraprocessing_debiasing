@@ -134,7 +134,7 @@ def train_model(model, trainloader, valloader, criterion, optimizer, checkpoint,
 
             if (index-1) % 101 == 0:
                 num_examples = index * inputs.size(0)
-                print(f"({index}/{len(trainloader)}) Loss: {running_loss / num_examples:.4f} Acc: {running_corrects.float() / num_examples:.4f}")
+                logger.info(f"({index}/{len(trainloader)}) Loss: {running_loss / num_examples:.4f} Acc: {running_corrects.float() / num_examples:.4f}")
 
         acc, _ = val_model(model, valloader, get_best_balanced_accuracy, protected_index, prediction_index)
         if acc < best_acc:
@@ -184,10 +184,10 @@ def compute_priors(data, protected_index, prediction_index):
     prot_rate = np.round(counts[1][1]/sum(counts[1]), 4)
     unprot_rate = np.round(counts[0][1]/sum(counts[0]), 4)
 
-    print('Prob. protected class:', np.round(sum(counts[1])/total, 4))
-    print('Prob. positive outcome:', np.round(sum(counts[:, 1])/total, 4))
-    print('Prob. positive outcome given protected class', prot_rate)
-    print('Prob. positive outcome given unprotected class', unprot_rate)
+    logger.info('Prob. protected class:', np.round(sum(counts[1])/total, 4))
+    logger.info('Prob. positive outcome:', np.round(sum(counts[:, 1])/total, 4))
+    logger.info('Prob. positive outcome given protected class', prot_rate)
+    logger.info('Prob. positive outcome given unprotected class', unprot_rate)
 
 
 def compute_bias(y_pred, y_true, prot, metric):
@@ -292,10 +292,10 @@ def print_objective_results(dataloader, model, thresh, protected_index, predicti
     global yaml_config
     rocauc_score, acc, bias, obj = val_model(model, dataloader, get_objective_results(thresh, margin), protected_index, prediction_index)
 
-    print('roc auc', rocauc_score)
-    print('accuracy with best thresh', acc)
-    print(yaml_config['metric'], float(bias))
-    print('objective', float(obj))
+    logger.info(f'roc auc {rocauc_score}')
+    logger.info(f'accuracy with best thresh {acc}')
+    logger.info(f'{yaml_config["metric"]} {float(bias)}')
+    logger.info(f'objective {float(obj)}')
 
     result_dict = {
         'roc_auc': float(rocauc_score),
@@ -359,7 +359,7 @@ def main(config):
         optimizer = optim.SGD(net.parameters(), lr=config['lr'])
     else:
         optimizer = optim.Adam(net.parameters(), lr=config['lr'])
-    checkpoint_file = Path('seed'+str(seed)+config['optimizer']+str(config['lr'])+'_pro_'+config['protected_attr']+'_pre_'+config['prediction_attr']+config['checkpoint'])
+    checkpoint_file = Path('seed'+str(seed)+config['optimizer']+str(config['lr'])+'_pro_'+config['protected_attr']+'_pre_'+config['prediction_attr']+'_'+config['checkpoint'])
 
     start_epoch = 0
     if checkpoint_file.is_file() and (not config['retrain']):
@@ -375,7 +375,7 @@ def main(config):
             valloader,
             criterion,
             optimizer,
-            'seed'+str(seed)+config['metric']+config['optimizer']+str(config['lr'])+'_pro_'+config['protected_attr']+'_pre_'+config['prediction_attr']+config['checkpoint'],
+            str(checkpoint_file),
             protected_index,
             prediction_index,
             epochs=config['epochs'],
@@ -384,12 +384,10 @@ def main(config):
 
     _, best_thresh = val_model(net, valloader, get_best_balanced_accuracy, protected_index, prediction_index)
 
-    print('val_results, thresh', best_thresh.item())
+    logger.info(f'val_results, thresh, {best_thresh.item()}')
     valid_results['base_model'] = print_objective_results(valloader, net, best_thresh, protected_index, prediction_index)
-    print()
-    print('test_results')
+    logger.info('test_results')
     result_dict = print_objective_results(testloader, net, best_thresh, protected_index, prediction_index)
-    print()
     test_results['base_model'] = result_dict
 
     def to_dataframe(y_true, y_pred, y_prot):
@@ -414,9 +412,9 @@ def main(config):
         obj = compute_objective(acc, bias, margin=0.0)
 
         if verbose:
-            print('accuracy ', acc)
-            print(yaml_config['metric'], bias)
-            print('objective', obj)
+            logger.info(f'accuracy {acc}')
+            logger.info(yaml_config['metric'], bias)
+            logger.info(f'objective {obj}')
 
         return {
             'roc_auc': None,
@@ -434,40 +432,36 @@ def main(config):
                                          metric_name="Average odds difference",
                                          metric_ub=0.05, metric_lb=-0.05)
 
-        print("Training ROC model with validation dataset.")
+        logger.info("Training ROC model with validation dataset.")
         ROC = ROC.fit(val_dataset, val_dataset)
 
-        print("Evaluating ROC model.")
+        logger.info("Evaluating ROC model.")
 
-        print('ROC val results')
+        logger.info('ROC val results')
         val_y_pred = ROC.predict(val_dataset).labels.reshape(-1)
         valid_results['ROC'] = eval_aif360_algorithm(val_y_pred, val_dataset)
-        print()
 
-        print('ROC test results')
+        logger.info('ROC test results')
         test_y_pred = ROC.predict(test_dataset).labels.reshape(-1)
         test_results['ROC'] = eval_aif360_algorithm(test_y_pred, test_dataset)
-        print()
         ROC = None
 
     if 'EqOdds' in config['models']:
         eo = EqOddsPostprocessing(privileged_groups=[{'y_prot': 0.}],
                                   unprivileged_groups=[{'y_prot': 1.}])
 
-        print("Training Equality of Odds model with validation dataset.")
+        logger.info("Training Equality of Odds model with validation dataset.")
         eo = eo.fit(val_dataset, val_dataset)
 
-        print("Evaluating Equality of Odds model.")
+        logger.info("Evaluating Equality of Odds model.")
 
-        print('Equality of Odds val results')
+        logger.info('Equality of Odds val results')
         val_y_pred = eo.predict(val_dataset).labels.reshape(-1)
         valid_results['EqOdds'] = eval_aif360_algorithm(val_y_pred, val_dataset)
-        print()
 
-        print('Equality of Odds test results')
+        logger.info('Equality of Odds test results')
         test_y_pred = eo.predict(test_dataset).labels.reshape(-1)
         test_results['EqOdds'] = eval_aif360_algorithm(test_y_pred, test_dataset)
-        print()
 
         eo = None
 
@@ -478,20 +472,18 @@ def main(config):
                                              unprivileged_groups=[{'y_prot': 1.}],
                                              cost_constraint=cost_constraint)
 
-        print("Training Calibrated Equality of Odds model with validation dataset.")
+        logger.info("Training Calibrated Equality of Odds model with validation dataset.")
         cpp = cpp.fit(val_dataset, val_dataset)
 
-        print("Evaluating Calibrated Equality of Odds model.")
+        logger.info("Evaluating Calibrated Equality of Odds model.")
 
-        print('Calibrated Equality of Odds val results')
+        logger.info('Calibrated Equality of Odds val results')
         valid_y_pred = cpp.predict(val_dataset).labels.reshape(-1)
         valid_results['CalibEqOdds'] = eval_aif360_algorithm(valid_y_pred, val_dataset)
-        print()
 
-        print('Equality of Odds test results')
+        logger.info('Equality of Odds test results')
         test_y_pred = cpp.predict(test_dataset).labels.reshape(-1)
         test_results['CalibEqOdds'] = eval_aif360_algorithm(valid_y_pred, val_dataset)
-        print()
         cpp = None
 
     if 'random' in config['models']:
@@ -505,16 +497,16 @@ def main(config):
 
             rand_model.eval()
             best_obj, best_thresh = val_model(rand_model, valloader, get_best_objective, protected_index, prediction_index)
-            print('iteration', iteration, 'obj', float(best_obj))
+            logger.info(f'iteration {iteration} obj {float(best_obj)}')
 
             if best_obj > rand_result[0]:
-                print('found new best')
+                logger.info('found new best')
                 del rand_result[1]
                 rand_result = [best_obj, copy.deepcopy(rand_model.state_dict()), best_thresh]
 
             if iteration % 10 == 0:
-                print(f"{iteration} / 101 trials have been sampled.")
-                print('current best obj', float(rand_result[0]))
+                logger.info(f"{iteration} / 101 trials have been sampled.")
+                logger.info(f'current best obj {float(rand_result[0])}')
 
         # evaluate best random model
         best_model = copy.deepcopy(net)
@@ -522,12 +514,10 @@ def main(config):
         best_model.to(device)
         best_thresh = rand_result[2]
 
-        print('val_results')
+        logger.info('val_results')
         valid_results['random'] = print_objective_results(valloader, best_model, best_thresh, protected_index, prediction_index)
-        print()
-        print('test_results')
+        logger.info('test_results')
         test_results['random'] = print_objective_results(testloader, best_model, best_thresh, protected_index, prediction_index)
-        print()
 
         torch.save(best_model.state_dict(), 'seed'+str(seed)+config['metric']+config['optimizer']+str(config['lr']) +
                    '_pro_'+config['protected_attr']+'_pre_'+config['prediction_attr']+config['random']['checkpoint'])
@@ -540,28 +530,22 @@ def main(config):
         for index, param in enumerate(base_model.parameters()):
             if index < total_params-config['layerwiseOpt']['num_layers']:
                 continue
-            print(f'Evaluating param number {index} of {total_params}')
+            logger.info(f'Evaluating param number {index} of {total_params}')
             param_copy = copy.deepcopy(param)
 
             def objective(new_param):
                 param.data[indices] = torch.tensor(new_param).to(device)
                 base_model.eval()
                 best_obj, thresh = val_model(base_model, valloader, get_best_objective, protected_index, prediction_index)
-                print(f'Evaluating param number {index} of {total_params}')
-                # print('VALIDATION')
-                # print_objective_results(valloader, base_model, thresh, protected_index, prediction_index)
-                # print('TEST')
-                # print_objective_results(testloader, base_model, thresh, protected_index, prediction_index)
-                # print()
+                logger.info(f'Evaluating param number {index} of {total_params}')
                 return -float(best_obj)
 
-            # mean = param.flatten().cpu().detach().numpy().mean()
             std = param.flatten().cpu().detach().numpy().std()
             num_elems = param.size().numel()
             ratio = min(1., config['layerwiseOpt']['max_sparsity'] / num_elems)
             indices = torch.rand(param.size()) < ratio
             space = [Real(float(x.cpu().detach()) - 2.2*std, float(x.cpu().detach()) + 2.2*std) for x in param[indices]]
-            print(f'Number of sparse indices: {indices.sum().item()}')
+            logger.info(f'Number of sparse indices: {indices.sum().item()}')
             res_gbrt = gbrt_minimize(
                 objective,
                 space,
@@ -579,12 +563,10 @@ def main(config):
         best_model.load_state_dict(best_state_dict)
         best_model.to(device)
 
-        print('val_results')
+        logger.info('val_results')
         valid_results['layerwiseOpt'] = print_objective_results(valloader, best_model, best_thresh, protected_index, prediction_index)
-        print()
-        print('test_results')
+        logger.info('test_results')
         test_results['layerwiseOpt'] = print_objective_results(testloader, best_model, best_thresh, protected_index, prediction_index)
-        print()
 
     if 'adversarial' in config['models']:
         unrefined_net = get_resnet_model()
@@ -634,7 +616,7 @@ def main(config):
                 critic_optimizer.step()
                 if step % 100 == 0:
                     print_loss = critic_loss if (epoch*critic_steps + step) == 0 else critic_loss / (epoch*critic_steps + step)
-                    print(f'=======> Epoch: {(epoch, step)} Critic loss: {print_loss:.3f}')
+                    logger.info(f'=======> Epoch: {(epoch, step)} Critic loss: {print_loss:.3f}')
 
             for param in critic.parameters():
                 param.requires_grad = False
@@ -663,17 +645,15 @@ def main(config):
                 actor_optimizer.step()
                 if step % 100 == 0:
                     print_loss = critic_loss if (epoch*actor_steps + step) == 0 else critic_loss / (epoch*actor_steps + step)
-                    print(f'=======> Epoch: {(epoch, step)} Actor loss: {print_loss:.3f}')
+                    logger.info(f'=======> Epoch: {(epoch, step)} Actor loss: {print_loss:.3f}')
 
             print_objective_results(valloader, actor, best_thresh, protected_index, prediction_index)
         _, best_thresh = val_model(actor, valloader, get_best_objective, protected_index, prediction_index)
 
-        print('val_results')
+        logger.info('val_results')
         valid_results['adversarial'] = print_objective_results(valloader, actor, best_thresh, protected_index, prediction_index)
-        print()
-        print('test_results')
+        logger.info('test_results')
         test_results['adversarial'] = print_objective_results(testloader, actor, best_thresh, protected_index, prediction_index)
-        print()
 
         torch.save(actor.state_dict(), config['adversarial']['checkpoint'])
 
