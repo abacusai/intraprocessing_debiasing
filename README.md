@@ -14,6 +14,8 @@ In this work, we initiate the study of a new paradigm in debiasing research, _in
 
 ## Requirements
 
+To run this code you will need to be using at least python3.8.
+
 Install the requirements using
 
 ```
@@ -25,7 +27,7 @@ $ pip install -r requirements.txt
 To run tabular experiments you can run the following command
 
 ```
-> python intraproc_tabular.py config_tabular.yml
+$ python intraproc_tabular.py config_tabular.yml
 ```
 
 To modify the parameters of the tabular experiment change the `config_tabular.yml` file. Below are some notes on what each parameter in the yaml file represents.
@@ -73,7 +75,7 @@ To modify the parameters of the tabular experiment change the `config_tabular.ym
 To run the CelebA experiments you can run the following command
 
 ```
-> python intraproc_celeba.py config_celeba.yml
+$ python intraproc_celeba.py config_celeba.yml
 ```
 
 Modify the `config_celeba.yml` file to adjust the parameters of the tabular experiment. Below are some notes on what each parameter in the yaml file corresponds to. The options for the protected and prediction attributes are:
