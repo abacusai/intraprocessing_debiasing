@@ -1,7 +1,7 @@
 ---
 seed: 4
-output: black_young.json
-protected_attr: Black
+output: fitz_dark_young.json
+protected_attr: Fitz_Dark
 prediction_attr: Young
 metric: aod
 trainsize: 40000

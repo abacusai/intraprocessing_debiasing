@@ -4,7 +4,7 @@
 Yash Savani, Colin White, Naveen Sundar Govindarajulu.\
 _Advances in Neural Information Processing Systems 33 (2020)_.
 
-## Three New Post-Hoc Techniques
+## A New Paradigm for Debiasing Research
 
 In this work, we initiate the study of a new paradigm in debiasing research, _intra-processing_, which sits between in-processing and post-processing methods. Intra-processing methods are designed specifically to debias large models which have been trained on a generic dataset, and fine-tuned on a more specific task. We show how to repurpose existing in-processing methods for this use-case, and we also propose three baseline algorithms: random perturbation, layerwise optimization, and adversarial debiasing. All of our techniques can be used for all popular group fairness measures such as equalized odds or statistical parity difference. We evaluate these methods across three popular datasets from the [aif360](https://aif360.readthedocs.io/en/latest/modules/datasets.html) toolkit, as well as on the [CelebA](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html) faces dataset.
 
@@ -78,59 +78,14 @@ To run the CelebA experiments you can run the following command
 $ python intraproc_celeba.py config_celeba.yml
 ```
 
-Modify the `config_celeba.yml` file to adjust the parameters of the tabular experiment. Below are some notes on what each parameter in the yaml file corresponds to. The options for the protected and prediction attributes are:
-
-- 5_o_Clock_Shadow
-- Arched_Eyebrows
-- Attractive
-- Bags_Under_Eyes
-- Bald
-- Bangs
-- Big_Lips
-- Big_Nose
-- Black_Hair
-- Blond_Hair
-- Blurry
-- Brown_Hair
-- Bushy_Eyebrows
-- Chubby
-- Double_Chin
-- Eyeglasses
-- Goatee
-- Gray_Hair
-- Heavy_Makeup
-- High_Cheekbones
-- Male
-- Mouth_Slightly_Open
-- Mustache
-- Narrow_Eyes
-- No_Beard
-- Oval_Face
-- Pale_Skin
-- Pointy_Nose
-- Receding_Hairline
-- Rosy_Cheeks
-- Sideburns
-- Smiling
-- Straight_Hair
-- Wavy_Hair
-- Wearing_Earrings
-- Wearing_Hat
-- Wearing_Lipstick
-- Wearing_Necklace
-- Wearing_Necktie
-- Young
-- White
-- Black
-- Asian
-- Index
-- Female
+Modify the `config_celeba.yml` file to adjust the parameters of the tabular experiment. Below are some notes on what each parameter in the yaml file corresponds to. 
+For the prediction and protected attributes, we used Smiling/Young, and 4-6 on the Fitzpatrick skin tone scale (Fitz_Dark).
 
 ### yaml config celebA notes
 
 - seed: The seed used for the experiment.
 - output: Prefix for output json file.
-- protected_attr: Protected Attribute.
+- protected_attr: Protected Attribute
 - prediction_attr: Prediction Attribute.
 - metric: Bias measure to use (one of spd, aod, eod).
 - trainsize: Size of training dataset.
