@@ -115,3 +115,15 @@ For the prediction and protected attributes, we used Smiling/Young, and 4-6 on t
   - actor_steps: Number of steps actor takes.
   - lambda: coefficient used in the surrogate loss function.
   - checkpoint: Where to save checkpoint files.
+  
+
+  ## Citation 
+Please cite our work if you use code from this repo:
+```bibtex
+@inproceedings{intra-processing-debiasing-2020,
+  title={Intra-Processing Methods for Debiasing Neural Networks}, 
+  author={Savani, Yash and White, Colin and Govindarajulu, Naveen Sundar}, 
+  booktitle={Advances in Neural Information Processing Systems},
+  year={2020}, 
+} 
+```
